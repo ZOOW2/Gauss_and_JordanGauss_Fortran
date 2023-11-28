@@ -1,0 +1,46 @@
+# Compiler and flags
+FC = gfortran
+FFLAGS = -Wall -g
+
+# Executable name
+EXEC = test_gauss
+
+# Source files
+SRC = gauss_lib.f90 test_gauss.f90
+
+# Object files
+OBJ = $(SRC:.f90=.o)
+
+# Dynamic library name
+LIB = libgauss.so
+
+run: test_gauss
+	./test_gauss
+
+.PHONY: run
+
+# Make all
+all: $(EXEC)
+
+# Linking executable
+$(EXEC): $(OBJ)
+	$(FC) $(FFLAGS) -o $@ $^ -L.-lgauss
+
+# Compiling source files
+%.o: %.f90
+	$(FC) $(FFLAGS) -fPIC -c $< -o $@
+
+# Creating dynamic library
+$(LIB): gauss_lib.o
+	$(FC) $(FFLAGS) -shared -o $@ $^
+
+# Phony targets
+.PHONY: clean cleanall run
+
+# Clean object files
+clean:
+	rm -f $(OBJ)
+
+# Clean all files
+cleanall: clean
+	rm -f $(EXEC) $(LIB)
